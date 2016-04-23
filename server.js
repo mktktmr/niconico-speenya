@@ -1,7 +1,15 @@
 var express = require('express');
 var app = express();
-var http = require('http').createServer(app);
-var io = require('socket.io')(http);
+var fs = require('fs');
+var settings = require('./private/settings.json');
+console.log(settings.auth.keyPath);
+console.log(settings.auth.certPath);
+var options = {
+  key: fs.readFileSync(settings.auth.keyPath),
+  cert: fs.readFileSync(settings.auth.certPath)
+};
+var https = require('https').createServer(options, app);
+var io = require('socket.io')(https);
 var extend = require('util')._extend;
 
 require('console-stamp')(console, '[HH:MM:ss.l]');
@@ -45,4 +53,4 @@ io.on('connection', function (socket) {
   });
 });
 
-http.listen(process.env.PORT || 2525);
+https.listen(process.env.PORT || 2525);
